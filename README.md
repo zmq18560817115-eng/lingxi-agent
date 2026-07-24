@@ -11,7 +11,8 @@
 - **D0 ✓** 五项预检退出码全 0：`python preflight.py`
 - **D1 ✓** 端到端假件骨架：填表 → 复述 → 确认 → 出图 → 导出，全假数据可点通
 - **D2 ✓** F2 接真 LLM（Claude Opus 4.8 + 结构化输出）；断网/无 Key 自动降级 `rule_fallback`
-- D3–D5：见下方「模块与替换路线」
+- **D4 ✓** F4 渲染按布局树真实绘制（Pillow），标题取需求方输入、配色取调色板，稳定输出 1080×1440
+- D3 / D5：见下方「模块与替换路线」
 
 > **D2 运行前提**：真 LLM 路径需要在你的环境里设置 `ANTHROPIC_API_KEY`。
 > 没有 Key 时不会报错——`analyze()` 自动走规则兜底（`generation_mode=rule_fallback`），
@@ -68,7 +69,7 @@ preflight.py         D0 五项预检
 |---|---|---|---|
 | F2 理解复述 | `services/analyze.py` | **✓ 真 LLM（Opus 4.8）+ 规则兜底** | 已完成（D2） |
 | F3 版式解析 | `services/parse.py` | 读 fixture | **D3** 真识别「标题栏 + N×M 网格」 |
-| F4 渲染 | `services/render.py` | 拷样图 | **D4** Pillow 按布局树绘制 1080×1440 |
+| F4 渲染 | `services/render.py` | **✓ Pillow 按布局树绘制 1080×1440** | 已完成（D4） |
 | F5 说明导出 | `services/brief.py` | 固定内容 | **D5** 由确认后的 VisualSpec 装配 |
 
 替换时**只改 service 内部实现，不改函数签名与路由**——这是骨架能一直可演示的前提。
