@@ -47,8 +47,18 @@ python main.py                                  # 不要用 uvicorn.exe（可能
 
 ```bash
 pip install -r requirements-dev.txt
-python tests/test_skeleton.py  # 或 python -m pytest tests/ -q
+python tests/test_skeleton.py  # 端到端骨架冒烟测试；或 python -m pytest tests/ -q
 ```
+
+**F2 拆解质量回归**（改完 `analyze.py` 的 prompt 后跑）：
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...   # 有 Key 才实测；没 Key 自动跳过、退出码 0
+python tests/test_prompt_quality.py
+```
+
+断言的是来源判定**规则**（无参考图不得标「参考图」、纯模糊输入必须标「默认推断」、
+明说方向标「文字描述」、没提规避则 avoid 留空），失败会打印实际来源便于定位。
 
 ## 结构
 
