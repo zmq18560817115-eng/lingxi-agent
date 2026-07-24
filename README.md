@@ -22,7 +22,21 @@
 ```bash
 pip install -r requirements.txt
 python preflight.py            # D0 预检，应全 ✓
-uvicorn main:app --reload      # 打开 http://127.0.0.1:8000/
+python main.py                 # 打开 http://127.0.0.1:8000/
+```
+
+`python main.py` 内置了启动入口，能绕开部分 Windows 安全策略对 `uvicorn.exe` 的拦截。
+也可直接 `uvicorn main:app --reload`（若未被拦截）。
+
+**Windows PowerShell 用户注意**（命令与 bash 不同）：
+
+```powershell
+git clone https://github.com/zmq18560817115-eng/lingxi-agent.git
+cd lingxi-agent
+git checkout claude/project-architecture-understanding-29vvds
+pip install -r requirements.txt
+$env:ANTHROPIC_API_KEY = "sk-ant-你的真实key"   # 设环境变量用 $env:，不是 export
+python main.py                                  # 不要用 uvicorn.exe（可能被安全策略拦）
 ```
 
 测试（需 dev 依赖）：

@@ -97,3 +97,10 @@ def api_brief(rid: str) -> JSONResponse:
 
 
 app.mount("/static", StaticFiles(directory=WEB), name="static")
+
+
+if __name__ == "__main__":
+    # 直接 `python main.py` 启动，绕开被安全策略拦截的 uvicorn.exe 启动器。
+    import uvicorn
+
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
