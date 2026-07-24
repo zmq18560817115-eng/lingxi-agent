@@ -77,6 +77,7 @@ class Requirement:
     goal: str = ""             # 用途（如：专业评测封面）
     description: str = ""       # 需求方的原话
     avoid: str = ""            # 不想要什么
+    template: str = "two_col"  # 版式模板（two_col/grid/hero_top/list）
     ref_paths: list[str] = field(default_factory=list)  # 参考图路径
     confirmed_restate: str = ""  # F2 纠偏后需求方确认/改写的复述
 

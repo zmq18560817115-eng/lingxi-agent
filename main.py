@@ -42,9 +42,12 @@ def create_requirement(
     goal: str = Form(""),
     description: str = Form(""),
     avoid: str = Form(""),
+    template: str = Form("two_col"),
 ) -> RedirectResponse:
     rid = store.new_id()
-    req = Requirement(requirement_id=rid, brand=brand, goal=goal, description=description, avoid=avoid)
+    req = Requirement(
+        requirement_id=rid, brand=brand, goal=goal, description=description, avoid=avoid, template=template
+    )
     store.save(rid, req.to_dict())
     return RedirectResponse(url=f"/requirements/{rid}/restate", status_code=303)
 

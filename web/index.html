@@ -18,6 +18,13 @@
     <textarea name="description" placeholder="如：专业评测、色调小清新不要太深、适当留白……"></textarea>
     <label>不想要什么</label>
     <input name="avoid" placeholder="如：暗黑风、深色底">
+    <label>版式（先选个大概，出图后还能调）</label>
+    <select name="template">
+      <option value="two_col">双栏对照（左右分组，适合多款产品对比）</option>
+      <option value="grid">均分网格（N×M 等大展示）</option>
+      <option value="hero_top">上图下文（大主图 + 说明，适合海报/头图）</option>
+      <option value="list">分类列表（分类 + 条目，适合菜单/清单）</option>
+    </select>
     <button type="submit">提交，看系统怎么理解</button>
   </form>
   <p class="muted">D1 演示：内容是假数据，先验证流程能走通。</p>

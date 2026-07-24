@@ -60,5 +60,23 @@ def test_end_to_end_skeleton() -> None:
     print("端到端骨架 ✓  requirement_id =", rid)
 
 
+def test_all_templates_render() -> None:
+    """四种版式模板都应稳定出 1080×1440 的图。"""
+    import store
+    from PIL import Image
+
+    from services.render import render
+    from services.templates import TEMPLATES
+
+    for tpl in TEMPLATES:
+        rid = store.new_id()
+        store.save(rid, {"brand": "X", "goal": "样例", "template": tpl})
+        path = render(rid)
+        with Image.open(path) as im:
+            assert im.size == (1080, 1440), f"{tpl} 尺寸 {im.size}"
+    print("四种版式渲染 ✓ ", "、".join(TEMPLATES.values()))
+
+
 if __name__ == "__main__":
     test_end_to_end_skeleton()
+    test_all_templates_render()
