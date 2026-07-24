@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>灵犀 · 理解复述</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>系统这样理解你的需求</h1>
+  <p class="muted">F2 复述与纠偏 · 这是唯一需要你主观判断的地方——读着对不对？</p>
+
+  <div class="restate" id="restate">加载中…</div>
+
+  <div class="card">
+    <div><strong>色调</strong><span class="src" id="tone-src"></span></div>
+    <div id="tone"></div>
+    <div style="margin-top:10px"><strong>构图</strong><span class="src" id="comp-src"></span></div>
+    <div id="comp"></div>
+    <div style="margin-top:10px"><strong>排版</strong><span class="src" id="layout-src"></span></div>
+    <div id="layout"></div>
+    <div style="margin-top:10px"><strong>会规避</strong>：<span id="avoid"></span></div>
+    <div class="muted" style="margin-top:8px">生成方式：<span id="mode"></span></div>
+  </div>
+
+  <label>不对？直接改写一版（你改的就是标准答案）</label>
+  <textarea id="correction" placeholder="留空表示认可上面的复述"></textarea>
+  <button id="confirm">确认，去出图</button>
+
+  <script>
+    const rid = location.pathname.split("/")[2];
+    async function load() {
+      const r = await fetch(`/api/requirements/${rid}/analyze`);
+      const s = await r.json();
+      document.getElementById("restate").textContent = s.restate;
+      document.getElementById("tone").textContent = s.tone.value;
+      document.getElementById("tone-src").textContent = "来源：" + s.tone.source;
+      document.getElementById("comp").textContent = s.composition.value;
+      document.getElementById("comp-src").textContent = "来源：" + s.composition.source;
+      document.getElementById("layout").textContent = s.layout.value;
+      document.getElementById("layout-src").textContent = "来源：" + s.layout.source;
+      document.getElementById("avoid").textContent = s.avoid.join("、");
+      document.getElementById("mode").textContent = s.generation_mode;
+    }
+    document.getElementById("confirm").onclick = async () => {
+      const fd = new FormData();
+      fd.append("confirmed_restate", document.getElementById("correction").value);
+      const r = await fetch(`/api/requirements/${rid}/confirm`, { method: "POST", body: fd });
+      const j = await r.json();
+      location.href = j.next;
+    };
+    load();
+  </script>
+</body>
+</html>

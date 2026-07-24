@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>灵犀 · 出图与导出</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>出图与说明导出</h1>
+  <p class="muted">F4 渲染 + F5 说明 · D1 是固定 1080×1440 假图与固定说明。</p>
+
+  <button id="render">生成预览图</button>
+  <div id="img-wrap" class="card" style="display:none">
+    <img class="render" id="img" alt="渲染预览">
+  </div>
+
+  <button id="export" class="secondary">导出说明书 (JSON)</button>
+  <div id="brief-wrap" class="card" style="display:none">
+    <pre id="brief"></pre>
+  </div>
+
+  <p><a href="/">← 重新录入</a></p>
+
+  <script>
+    const rid = location.pathname.split("/")[2];
+    document.getElementById("render").onclick = async () => {
+      const r = await fetch(`/api/requirements/${rid}/render`, { method: "POST" });
+      const j = await r.json();
+      const img = document.getElementById("img");
+      img.src = j.png + "?t=" + Date.now();
+      document.getElementById("img-wrap").style.display = "block";
+    };
+    document.getElementById("export").onclick = async () => {
+      const r = await fetch(`/api/requirements/${rid}/brief`);
+      const j = await r.json();
+      document.getElementById("brief").textContent = JSON.stringify(j, null, 2);
+      document.getElementById("brief-wrap").style.display = "block";
+    };
+  </script>
+</body>
+</html>

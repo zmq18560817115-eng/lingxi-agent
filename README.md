@@ -1,2 +1,56 @@
-# lingxi-agent
-需求翻译器
+# lingxi-agent · 灵犀 · 需求翻译器
+
+把需求方模糊的视觉诉求（自然语言 + 参考图）翻译成一份**能被人和机器双向确认**的视觉规格：
+一段人话复述（F2）、一张 1080×1440 预览图（F4）、一份可交付说明书（F5）。
+
+> 构建策略见《灵犀 · 构建策略与执行修订》。核心原则：**能走通 > 做得对 > 好不好看**。
+> 采用纵向切片——D1 用假件把全链路铺通，D2–D5 每天拆掉一块假的换成真的。
+
+## 当前进度
+
+- **D0 ✓** 五项预检退出码全 0：`python preflight.py`
+- **D1 ✓** 端到端假件骨架：填表 → 复述 → 确认 → 出图 → 导出，全假数据可点通
+- D2–D5：见下方「模块与替换路线」
+
+## 运行
+
+```bash
+pip install -r requirements.txt
+python preflight.py            # D0 预检，应全 ✓
+uvicorn main:app --reload      # 打开 http://127.0.0.1:8000/
+```
+
+测试（需 dev 依赖）：
+
+```bash
+pip install -r requirements-dev.txt
+python tests/test_skeleton.py  # 或 python -m pytest tests/ -q
+```
+
+## 结构
+
+```
+main.py              FastAPI 入口，路由 = 纵向切片的接缝（D2–D5 不改路由）
+models.py            数据契约：Sourced / VisualSpec / Brief / Requirement
+store.py             按 requirement_id 的 JSON 文件存储
+services/
+  analyze.py   F2 理解复述   analyze(requirement_id) -> VisualSpec   【D1 假件】
+  parse.py     F3 版式解析   parse(ref_path) -> dict                【D1 假件】
+  render.py    F4 渲染       render(requirement_id) -> str (png)     【D1 假件】
+  brief.py     F5 说明导出   brief(requirement_id) -> Brief          【D1 假件】
+web/                 原生 HTML 最小前端（restate.html 是唯一认真做的页）
+tests/fixtures/      layout_tree_sample.json（D3 目标产物）+ sample_1080x1440.png
+preflight.py         D0 五项预检
+```
+
+## 模块与替换路线
+
+| 模块 | 服务 | 现状 | 替换点 |
+|---|---|---|---|
+| F2 理解复述 | `services/analyze.py` | 硬编码 VisualSpec | **D2** 接真 LLM，断网落 `rule_fallback` |
+| F3 版式解析 | `services/parse.py` | 读 fixture | **D3** 真识别「标题栏 + N×M 网格」 |
+| F4 渲染 | `services/render.py` | 拷样图 | **D4** Pillow 按布局树绘制 1080×1440 |
+| F5 说明导出 | `services/brief.py` | 固定内容 | **D5** 由确认后的 VisualSpec 装配 |
+
+替换时**只改 service 内部实现，不改函数签名与路由**——这是骨架能一直可演示的前提。
+假件保留在服务内标注 `【D1 假件】`，兼作 D5 的降级兜底。
