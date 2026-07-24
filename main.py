@@ -101,6 +101,9 @@ app.mount("/static", StaticFiles(directory=WEB), name="static")
 
 if __name__ == "__main__":
     # 直接 `python main.py` 启动，绕开被安全策略拦截的 uvicorn.exe 启动器。
+    # 默认单进程（不开 reload），在被 WDAC/AppLocker 锁定的 Windows 上最稳；
+    # 需要改代码自动重载时设 LINGXI_RELOAD=1。
     import uvicorn
 
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    reload = os.environ.get("LINGXI_RELOAD") == "1"
+    uvicorn.run("main:app" if reload else app, host="127.0.0.1", port=8000, reload=reload)
