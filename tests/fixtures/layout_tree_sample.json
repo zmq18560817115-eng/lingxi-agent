@@ -1,0 +1,48 @@
+{
+  "canvas": { "width": 1080, "height": 1440, "bg": "#FFF9EF" },
+  "regions": [
+    {
+      "role": "title_bar",
+      "box": [0, 0, 1080, 200],
+      "children": [
+        { "role": "title", "text": "6 款吸奶器专业评测", "box": [60, 60, 960, 80], "align": "center" }
+      ]
+    },
+    {
+      "role": "group",
+      "label": "活塞泵",
+      "box": [40, 240, 500, 1400],
+      "grid": { "rows": 3, "cols": 1, "gap": 32 },
+      "children": [
+        { "role": "product_card", "box": [40, 240, 500, 605], "children": [
+          { "role": "price_bar", "box": [40, 545, 500, 605] }
+        ]},
+        { "role": "product_card", "box": [40, 637, 500, 1002], "children": [
+          { "role": "price_bar", "box": [40, 942, 500, 1002] }
+        ]},
+        { "role": "product_card", "box": [40, 1034, 500, 1399], "children": [
+          { "role": "price_bar", "box": [40, 1339, 500, 1399] }
+        ]}
+      ]
+    },
+    {
+      "role": "group",
+      "label": "隔膜泵",
+      "box": [540, 240, 1040, 1400],
+      "grid": { "rows": 3, "cols": 1, "gap": 32 },
+      "children": [
+        { "role": "product_card", "box": [540, 240, 1040, 605], "children": [
+          { "role": "price_bar", "box": [540, 545, 1040, 605] }
+        ]},
+        { "role": "product_card", "box": [540, 637, 1040, 1002], "children": [
+          { "role": "price_bar", "box": [540, 942, 1040, 1002] }
+        ]},
+        { "role": "product_card", "box": [540, 1034, 1040, 1399], "children": [
+          { "role": "price_bar", "box": [540, 1339, 1040, 1399] }
+        ]}
+      ]
+    }
+  ],
+  "palette": { "primary": "#F5B841", "bg": "#FFF9EF", "text": "#3A3226" },
+  "margins_pct": 10
+}

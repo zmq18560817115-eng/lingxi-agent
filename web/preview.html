@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>灵犀 · 出图与导出</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>这就是系统理解你要的样子</h1>
+  <p class="muted">F4 渲染 + F5 说明 · 图文对照，一眼看出对不对。</p>
+
+  <div class="card">
+    <div class="muted">你确认的理解</div>
+    <div class="restate" id="restate" style="margin-top:8px">加载中…</div>
+  </div>
+
+  <div class="card" id="img-wrap">
+    <div id="img-status" class="muted">正在出图…</div>
+    <img class="render" id="img" alt="渲染预览" style="display:none">
+  </div>
+
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px">导出说明书（发给设计师）</div>
+    <a id="view-html" target="_blank"><button>查看 / 打印说明书</button></a>
+    <a id="dl-html"><button class="secondary">下载 HTML</button></a>
+    <a id="dl-md"><button class="secondary">下载 Markdown</button></a>
+    <div class="muted" style="margin-top:8px">「查看/打印」页里用浏览器打印即可存成 PDF。</div>
+  </div>
+
+  <p><a href="/">← 重新录入</a></p>
+
+  <script>
+    const rid = location.pathname.split("/")[2];
+
+    // 图文同屏：进页面就显示确认的理解 + 自动出图，不用来回点。
+    async function init() {
+      try {
+        const s = await (await fetch(`/api/requirements/${rid}/analyze`)).json();
+        document.getElementById("restate").textContent = s.restate;
+      } catch (e) {
+        document.getElementById("restate").textContent = "理解加载失败：" + e.message;
+      }
+      try {
+        const res = await fetch(`/api/requirements/${rid}/render`, { method: "POST" });
+        if (!res.ok) throw new Error(`服务返回 ${res.status}`);
+        const r = await res.json();
+        const img = document.getElementById("img");
+        img.onload = () => { document.getElementById("img-status").style.display = "none"; img.style.display = "block"; };
+        img.onerror = () => { document.getElementById("img-status").textContent = "预览图加载失败。"; };
+        img.src = r.png + "?t=" + Date.now();
+      } catch (e) {
+        document.getElementById("img-status").textContent = "出图失败：" + e.message;
+      }
+    }
+
+    document.getElementById("view-html").href = `/requirements/${rid}/brief.html`;
+    document.getElementById("dl-html").href = `/requirements/${rid}/brief.html?download=1`;
+    document.getElementById("dl-md").href = `/requirements/${rid}/brief.md?download=1`;
+
+    init();
+  </script>
+</body>
+</html>

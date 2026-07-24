@@ -1,0 +1,15 @@
+/* 灵犀最小样式：能看能点即可。刻意粗糙——D6 看"愿不愿再用"，不看好不好看。 */
+* { box-sizing: border-box; }
+body { font: 16px/1.6 system-ui, sans-serif; max-width: 720px; margin: 24px auto; padding: 0 16px; color: #3A3226; }
+h1 { font-size: 22px; }
+label { display: block; margin: 14px 0 4px; font-weight: 600; }
+input, textarea { width: 100%; padding: 8px; border: 1px solid #d8cdb8; border-radius: 6px; font: inherit; }
+textarea { min-height: 72px; }
+button { margin-top: 16px; padding: 10px 20px; border: 0; border-radius: 6px; background: #F5B841; color: #3A3226; font-weight: 700; cursor: pointer; }
+button.secondary { background: #eee; }
+.card { border: 1px solid #e6dcc6; border-radius: 10px; padding: 16px; margin: 16px 0; background: #FFF9EF; }
+.src { font-size: 12px; color: #9a8f78; margin-left: 6px; }
+.restate { font-size: 18px; background: #fff; border-left: 4px solid #F5B841; padding: 14px 16px; border-radius: 6px; }
+.muted { color: #9a8f78; font-size: 13px; }
+img.render { width: 100%; border: 1px solid #e6dcc6; border-radius: 8px; }
+pre { background: #2b2b2b; color: #eee; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 13px; }

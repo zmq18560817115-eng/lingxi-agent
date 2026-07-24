@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>灵犀 · 理解复述</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>系统这样理解你的需求</h1>
+  <p class="muted">F2 复述与纠偏 · 读着不对的地方，<b>直接改对应那一行</b>就行——改哪条哪条更新。</p>
+
+  <div id="status" class="muted">加载中…</div>
+
+  <div id="main" style="display:none">
+    <div class="restate" id="restate"></div>
+    <div class="muted" id="mode" style="margin:6px 0 18px"></div>
+
+    <div class="card">
+      <label>色调 <span class="src" id="tone-src"></span></label>
+      <input id="tone">
+      <label>构图 <span class="src" id="comp-src"></span></label>
+      <input id="composition">
+      <label>排版 <span class="src" id="layout-src"></span></label>
+      <input id="layout">
+      <label>关键元素（顿号分隔）</label>
+      <input id="key_elements">
+      <label>明确规避（顿号分隔）</label>
+      <input id="avoid">
+    </div>
+
+    <label>还有别的要补充？（可留空）</label>
+    <textarea id="correction" placeholder="上面逐条改即可；这里可再补一句整体说明"></textarea>
+
+    <div id="err" class="muted" style="color:#a3392b"></div>
+    <button id="confirm">确认，去出图</button>
+  </div>
+
+  <script>
+    const rid = location.pathname.split("/")[2];
+    const $ = (id) => document.getElementById(id);
+    const SRC = { model: "✨ 由 AI 理解生成", rule_fallback: "📝 离线草拟（未连模型，接入后更贴）" };
+
+    async function load() {
+      try {
+        const res = await fetch(`/api/requirements/${rid}/analyze`);
+        if (!res.ok) throw new Error(`服务返回 ${res.status}`);
+        const s = await res.json();
+        $("restate").textContent = s.restate;
+        $("mode").textContent = SRC[s.generation_mode] || s.generation_mode;
+        $("tone").value = s.tone.value;
+        $("composition").value = s.composition.value;
+        $("layout").value = s.layout.value;
+        $("key_elements").value = s.key_elements.join("、");
+        $("avoid").value = s.avoid.join("、");
+        $("tone-src").textContent = "来源：" + s.tone.source;
+        $("comp-src").textContent = "来源：" + s.composition.source;
+        $("layout-src").textContent = "来源：" + s.layout.source;
+        $("status").style.display = "none";
+        $("main").style.display = "block";
+      } catch (e) {
+        $("status").innerHTML = `加载失败：${e.message}　<a href="">重试</a>`;
+      }
+    }
+
+    $("confirm").onclick = async () => {
+      const btn = $("confirm");
+      btn.disabled = true; btn.textContent = "提交中…"; $("err").textContent = "";
+      try {
+        const fd = new FormData();
+        for (const k of ["tone", "composition", "layout", "key_elements", "avoid"]) fd.append(k, $(k).value);
+        fd.append("confirmed_restate", $("correction").value);
+        const res = await fetch(`/api/requirements/${rid}/confirm`, { method: "POST", body: fd });
+        if (!res.ok) throw new Error(`服务返回 ${res.status}`);
+        const j = await res.json();
+        location.href = j.next;
+      } catch (e) {
+        $("err").textContent = "提交失败：" + e.message + "，请重试。";
+        btn.disabled = false; btn.textContent = "确认，去出图";
+      }
+    };
+
+    load();
+  </script>
+</body>
+</html>
