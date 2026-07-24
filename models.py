@@ -9,8 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field, asdict
 from typing import Any, Literal
 
-# 每个视觉判断的来源，用于可解释性：需求方能看清"这条是你说的 / 你选的 / 我猜的"。
-SourceKind = Literal["文字描述", "用户选项", "默认推断", "参考图"]
+# 每个视觉判断的来源，用于可解释性：需求方能看清"这条是你说的 / 你选的 / 我猜的 / 你改的"。
+SourceKind = Literal["文字描述", "用户选项", "默认推断", "参考图", "用户修改"]
 
 
 @dataclass

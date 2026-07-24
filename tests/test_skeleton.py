@@ -33,12 +33,19 @@ def test_end_to_end_skeleton() -> None:
     # F2 复述
     spec = client.get(f"/api/requirements/{rid}/analyze").json()
     assert spec["restate"]
-    assert spec["tone"]["source"] in {"文字描述", "用户选项", "默认推断", "参考图"}
+    assert spec["tone"]["source"] in {"文字描述", "用户选项", "默认推断", "参考图", "用户修改"}
     assert spec["generation_mode"] in {"model", "rule_fallback"}
 
-    # 确认（纠偏可留空）
-    c = client.post(f"/api/requirements/{rid}/confirm", data={"confirmed_restate": ""}).json()
+    # 逐字段纠偏：改色调 + 规避，确认后应回流到缓存 spec 且来源标「用户修改」
+    c = client.post(
+        f"/api/requirements/{rid}/confirm",
+        data={"tone": "冷淡的高级灰蓝", "avoid": "暖色、圆角", "confirmed_restate": "就按这个来"},
+    ).json()
     assert c["ok"] and c["next"].endswith("/preview")
+    edited = client.get(f"/api/requirements/{rid}/analyze").json()
+    assert edited["tone"]["value"] == "冷淡的高级灰蓝"
+    assert edited["tone"]["source"] == "用户修改"
+    assert "暖色" in edited["avoid"] and "圆角" in edited["avoid"]
 
     # F4 渲染 → 1080×1440 PNG
     rd = client.post(f"/api/requirements/{rid}/render").json()

@@ -6,6 +6,7 @@ D1 目标：填表 → 提交 → 看到复述 → 点确认 → 看到 PNG → 
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from fastapi import FastAPI, Form, HTTPException
@@ -71,10 +72,41 @@ def api_analyze(rid: str) -> JSONResponse:
 
 
 @app.post("/api/requirements/{rid}/confirm")
-def api_confirm(rid: str, confirmed_restate: str = Form("")) -> JSONResponse:
-    if store.get(rid) is None:
+def api_confirm(
+    rid: str,
+    confirmed_restate: str = Form(""),
+    tone: str = Form(""),
+    composition: str = Form(""),
+    layout: str = Form(""),
+    key_elements: str = Form(""),  # 顿号/逗号分隔
+    avoid: str = Form(""),         # 顿号/逗号分隔
+) -> JSONResponse:
+    payload = store.get(rid)
+    if payload is None:
         raise HTTPException(404, "需求不存在")
-    store.update(rid, confirmed_restate=confirmed_restate)
+
+    # 逐字段纠偏：把需求方改过的字段并回缓存 spec，改动的字段来源标「用户修改」。
+    spec = payload.get("spec") or analyze(rid).to_dict()
+
+    def merge_sourced(field: str, new_val: str) -> None:
+        new_val = new_val.strip()
+        if new_val and new_val != spec.get(field, {}).get("value"):
+            spec[field] = {"value": new_val, "source": "用户修改"}
+
+    merge_sourced("tone", tone)
+    merge_sourced("composition", composition)
+    merge_sourced("layout", layout)
+
+    def merge_list(field: str, raw: str) -> None:
+        if raw.strip():
+            items = [x.strip() for x in re.split(r"[,，、;；\s]+", raw) if x.strip()]
+            if items != spec.get(field):
+                spec[field] = items
+
+    merge_list("key_elements", key_elements)
+    merge_list("avoid", avoid)
+
+    store.update(rid, spec=spec, confirmed_restate=confirmed_restate)
     return JSONResponse({"ok": True, "next": f"/requirements/{rid}/preview"})
 
 

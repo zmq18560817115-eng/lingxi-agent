@@ -16,7 +16,8 @@
   </div>
 
   <div class="card" id="img-wrap">
-    <img class="render" id="img" alt="渲染预览">
+    <div id="img-status" class="muted">正在出图…</div>
+    <img class="render" id="img" alt="渲染预览" style="display:none">
   </div>
 
   <div class="card">
@@ -34,10 +35,23 @@
 
     // 图文同屏：进页面就显示确认的理解 + 自动出图，不用来回点。
     async function init() {
-      const s = await (await fetch(`/api/requirements/${rid}/analyze`)).json();
-      document.getElementById("restate").textContent = s.restate;
-      const r = await (await fetch(`/api/requirements/${rid}/render`, { method: "POST" })).json();
-      document.getElementById("img").src = r.png + "?t=" + Date.now();
+      try {
+        const s = await (await fetch(`/api/requirements/${rid}/analyze`)).json();
+        document.getElementById("restate").textContent = s.restate;
+      } catch (e) {
+        document.getElementById("restate").textContent = "理解加载失败：" + e.message;
+      }
+      try {
+        const res = await fetch(`/api/requirements/${rid}/render`, { method: "POST" });
+        if (!res.ok) throw new Error(`服务返回 ${res.status}`);
+        const r = await res.json();
+        const img = document.getElementById("img");
+        img.onload = () => { document.getElementById("img-status").style.display = "none"; img.style.display = "block"; };
+        img.onerror = () => { document.getElementById("img-status").textContent = "预览图加载失败。"; };
+        img.src = r.png + "?t=" + Date.now();
+      } catch (e) {
+        document.getElementById("img-status").textContent = "出图失败：" + e.message;
+      }
     }
 
     document.getElementById("view-html").href = `/requirements/${rid}/brief.html`;
