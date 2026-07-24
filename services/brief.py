@@ -1,7 +1,8 @@
 """F5 说明导出 —— 汇总成可交付说明书。
 
-【D1 假件】返回固定内容。D5 替换：由确认后的 VisualSpec + 布局树装配真实 Brief。
-格式固定，风险低，因此功能先行。
+【联调版】优先用缓存的 spec（F2 复述的产物），并把需求方**确认/改写**的
+那版复述作为概述回流进来，保证说明书 = 需求方点头的那份理解。
+没有缓存 spec 时兜底现算一次。
 """
 
 from __future__ import annotations
@@ -12,17 +13,20 @@ from services.analyze import analyze
 
 
 def brief(requirement_id: str) -> Brief:
-    # D5 起：读确认后的 VisualSpec，组装完整说明书。
-    # D1 复用 analyze() 假件的字段，拼一份固定 Brief。
-    spec = analyze(requirement_id)
     data = store.get(requirement_id) or {}
+    spec = data.get("spec") or analyze(requirement_id).to_dict()
+
+    # 纠偏回流：需求方改写过就用她那版，否则用复述原文（压平成一行）。
+    confirmed = (data.get("confirmed_restate") or "").strip()
+    summary = confirmed or " ".join(spec.get("restate", "").split())
+
     return Brief(
-        title=f"视觉说明书 · {data.get('brand', '未命名需求')}",
-        summary="偏暖清爽的专业评测封面，顶部标题栏 + 6 款产品双栏分组对照。",
-        tone=spec.tone.value,
-        composition=spec.composition.value,
-        layout=spec.layout.value,
-        key_elements=spec.key_elements,
-        avoid=spec.avoid,
-        reference_note="借用参考图的版式骨架，配色另做（D1 假数据）。",
+        title=f"视觉说明书 · {data.get('brand') or '未命名需求'}",
+        summary=summary,
+        tone=spec["tone"]["value"],
+        composition=spec["composition"]["value"],
+        layout=spec["layout"]["value"],
+        key_elements=spec.get("key_elements", []),
+        avoid=spec.get("avoid", []),
+        reference_note="版式骨架参考上传图，配色按上述色调另做。",
     )

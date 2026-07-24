@@ -7,11 +7,15 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <h1>出图与说明导出</h1>
-  <p class="muted">F4 渲染 + F5 说明 · D1 是固定 1080×1440 假图与固定说明。</p>
+  <h1>这就是系统理解你要的样子</h1>
+  <p class="muted">F4 渲染 + F5 说明 · 图文对照，一眼看出对不对。</p>
 
-  <button id="render">生成预览图</button>
-  <div id="img-wrap" class="card" style="display:none">
+  <div class="card">
+    <div class="muted">你确认的理解</div>
+    <div class="restate" id="restate" style="margin-top:8px">加载中…</div>
+  </div>
+
+  <div class="card" id="img-wrap">
     <img class="render" id="img" alt="渲染预览">
   </div>
 
@@ -24,19 +28,22 @@
 
   <script>
     const rid = location.pathname.split("/")[2];
-    document.getElementById("render").onclick = async () => {
-      const r = await fetch(`/api/requirements/${rid}/render`, { method: "POST" });
-      const j = await r.json();
-      const img = document.getElementById("img");
-      img.src = j.png + "?t=" + Date.now();
-      document.getElementById("img-wrap").style.display = "block";
-    };
+
+    // 图文同屏：进页面就显示确认的理解 + 自动出图，不用来回点。
+    async function init() {
+      const s = await (await fetch(`/api/requirements/${rid}/analyze`)).json();
+      document.getElementById("restate").textContent = s.restate;
+      const r = await (await fetch(`/api/requirements/${rid}/render`, { method: "POST" })).json();
+      document.getElementById("img").src = r.png + "?t=" + Date.now();
+    }
+
     document.getElementById("export").onclick = async () => {
-      const r = await fetch(`/api/requirements/${rid}/brief`);
-      const j = await r.json();
+      const j = await (await fetch(`/api/requirements/${rid}/brief`)).json();
       document.getElementById("brief").textContent = JSON.stringify(j, null, 2);
       document.getElementById("brief-wrap").style.display = "block";
     };
+
+    init();
   </script>
 </body>
 </html>

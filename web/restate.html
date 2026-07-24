@@ -20,7 +20,7 @@
     <div style="margin-top:10px"><strong>排版</strong><span class="src" id="layout-src"></span></div>
     <div id="layout"></div>
     <div style="margin-top:10px"><strong>会规避</strong>：<span id="avoid"></span></div>
-    <div class="muted" style="margin-top:8px">生成方式：<span id="mode"></span></div>
+    <div class="muted" style="margin-top:8px"><span id="mode"></span></div>
   </div>
 
   <label>不对？直接改写一版（你改的就是标准答案）</label>
@@ -40,7 +40,11 @@
       document.getElementById("layout").textContent = s.layout.value;
       document.getElementById("layout-src").textContent = "来源：" + s.layout.source;
       document.getElementById("avoid").textContent = s.avoid.join("、");
-      document.getElementById("mode").textContent = s.generation_mode;
+      const modeMap = {
+        model: "✨ 由 AI 理解生成",
+        rule_fallback: "📝 离线草拟（未连模型，接入后更贴）",
+      };
+      document.getElementById("mode").textContent = modeMap[s.generation_mode] || s.generation_mode;
     }
     document.getElementById("confirm").onclick = async () => {
       const fd = new FormData();

@@ -11,6 +11,7 @@ IO 契约（文档 D4）：布局树 → PNG，与界面无关。
 from __future__ import annotations
 
 import glob
+import re
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -68,6 +69,14 @@ def render(requirement_id: str) -> str:
     primary = palette.get("primary", "#F5B841")
     text_col = palette.get("text", "#3A3226")
     bg = canvas.get("bg", palette.get("bg", "#FFF9EF"))
+
+    # 联调：配色跟着 F2 确认的色调走 —— 从 tone 文案里取色号（第 1 个当主色，第 2 个当底色）。
+    spec = (store.get(requirement_id) or {}).get("spec") or {}
+    hexes = re.findall(r"#[0-9A-Fa-f]{6}", spec.get("tone", {}).get("value", ""))
+    if hexes:
+        primary = hexes[0]
+    if len(hexes) > 1:
+        bg = hexes[1]
 
     img = Image.new("RGB", (W, H), bg)
     d = ImageDraw.Draw(img)

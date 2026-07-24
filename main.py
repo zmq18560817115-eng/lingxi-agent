@@ -51,9 +51,16 @@ def restate_page(rid: str) -> str:
 
 @app.get("/api/requirements/{rid}/analyze")
 def api_analyze(rid: str) -> JSONResponse:
-    if store.get(rid) is None:
+    payload = store.get(rid)
+    if payload is None:
         raise HTTPException(404, "需求不存在")
-    return JSONResponse(analyze(rid).to_dict())
+    # 缓存 spec：复述页刷新、后续出图/导出都复用同一份，避免重复调 LLM，
+    # 也保证 F2 复述 / F4 出图 / F5 说明书用的是同一份理解。
+    spec = payload.get("spec")
+    if not spec:
+        spec = analyze(rid).to_dict()
+        store.update(rid, spec=spec)
+    return JSONResponse(spec)
 
 
 @app.post("/api/requirements/{rid}/confirm")
