@@ -13,7 +13,8 @@
 - **D2 ✓** F2 接真 LLM（Claude Opus 4.8 + 结构化输出）；断网/无 Key 自动降级 `rule_fallback`
 - **D4 ✓** F4 渲染按布局树真实绘制（Pillow），标题取需求方输入、配色取调色板，稳定输出 1080×1440
 - **联调 ✓** F2 复述缓存并回流：确认/改写 → 说明书用那版文字；确认的**色调色号 → 出图配色**；出图页图文同屏、去开发术语
-- D3 / D5：见下方「模块与替换路线」
+- **D5 ✓** 说明导出：一页 HTML 说明书（内嵌预览图 + 规格表 + 来源标注，可打印成 PDF）/ Markdown / JSON，均可下载
+- D3：见下方「模块与替换路线」
 
 > **D2 运行前提**：真 LLM 路径需要在你的环境里设置 `ANTHROPIC_API_KEY`。
 > 没有 Key 时不会报错——`analyze()` 自动走规则兜底（`generation_mode=rule_fallback`），
@@ -71,7 +72,7 @@ preflight.py         D0 五项预检
 | F2 理解复述 | `services/analyze.py` | **✓ 真 LLM（Opus 4.8）+ 规则兜底** | 已完成（D2） |
 | F3 版式解析 | `services/parse.py` | 读 fixture | **D3** 真识别「标题栏 + N×M 网格」 |
 | F4 渲染 | `services/render.py` | **✓ Pillow 按布局树绘制 1080×1440** | 已完成（D4） |
-| F5 说明导出 | `services/brief.py` | 固定内容 | **D5** 由确认后的 VisualSpec 装配 |
+| F5 说明导出 | `services/brief.py` | **✓ HTML/Markdown/JSON，内嵌预览图 + 来源标注** | 已完成（D5） |
 
 替换时**只改 service 内部实现，不改函数签名与路由**——这是骨架能一直可演示的前提。
 假件保留在服务内标注 `【D1 假件】`，兼作 D5 的降级兜底。

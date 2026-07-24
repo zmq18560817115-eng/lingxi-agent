@@ -19,9 +19,12 @@
     <img class="render" id="img" alt="渲染预览">
   </div>
 
-  <button id="export" class="secondary">导出说明书 (JSON)</button>
-  <div id="brief-wrap" class="card" style="display:none">
-    <pre id="brief"></pre>
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px">导出说明书（发给设计师）</div>
+    <a id="view-html" target="_blank"><button>查看 / 打印说明书</button></a>
+    <a id="dl-html"><button class="secondary">下载 HTML</button></a>
+    <a id="dl-md"><button class="secondary">下载 Markdown</button></a>
+    <div class="muted" style="margin-top:8px">「查看/打印」页里用浏览器打印即可存成 PDF。</div>
   </div>
 
   <p><a href="/">← 重新录入</a></p>
@@ -37,11 +40,9 @@
       document.getElementById("img").src = r.png + "?t=" + Date.now();
     }
 
-    document.getElementById("export").onclick = async () => {
-      const j = await (await fetch(`/api/requirements/${rid}/brief`)).json();
-      document.getElementById("brief").textContent = JSON.stringify(j, null, 2);
-      document.getElementById("brief-wrap").style.display = "block";
-    };
+    document.getElementById("view-html").href = `/requirements/${rid}/brief.html`;
+    document.getElementById("dl-html").href = `/requirements/${rid}/brief.html?download=1`;
+    document.getElementById("dl-md").href = `/requirements/${rid}/brief.md?download=1`;
 
     init();
   </script>

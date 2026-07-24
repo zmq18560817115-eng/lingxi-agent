@@ -9,13 +9,20 @@ from __future__ import annotations
 from pathlib import Path
 
 from fastapi import FastAPI, Form, HTTPException
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    PlainTextResponse,
+    RedirectResponse,
+)
 from fastapi.staticfiles import StaticFiles
 
 import store
 from models import Requirement
 from services.analyze import analyze
 from services.brief import brief as build_brief
+from services.brief import brief_html, brief_markdown
 from services.render import render
 
 app = FastAPI(title="灵犀 · 需求翻译器")
@@ -101,6 +108,26 @@ def api_brief(rid: str) -> JSONResponse:
     if store.get(rid) is None:
         raise HTTPException(404, "需求不存在")
     return JSONResponse(build_brief(rid).to_dict())
+
+
+@app.get("/requirements/{rid}/brief.html", response_class=HTMLResponse)
+def export_brief_html(rid: str, download: int = 0) -> HTMLResponse:
+    if store.get(rid) is None:
+        raise HTTPException(404, "需求不存在")
+    headers = (
+        {"Content-Disposition": f'attachment; filename="brief_{rid}.html"'} if download else {}
+    )
+    return HTMLResponse(brief_html(rid), headers=headers)
+
+
+@app.get("/requirements/{rid}/brief.md", response_class=PlainTextResponse)
+def export_brief_md(rid: str, download: int = 0) -> PlainTextResponse:
+    if store.get(rid) is None:
+        raise HTTPException(404, "需求不存在")
+    headers = (
+        {"Content-Disposition": f'attachment; filename="brief_{rid}.md"'} if download else {}
+    )
+    return PlainTextResponse(brief_markdown(rid), media_type="text/markdown; charset=utf-8", headers=headers)
 
 
 app.mount("/static", StaticFiles(directory=WEB), name="static")
